@@ -1,0 +1,3 @@
+rowstore indexes vs columnstore indexes
+key constraints
+JSON column
