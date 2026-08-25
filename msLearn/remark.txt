@@ -1,6 +1,11 @@
+recursive query
 rowstore indexes vs columnstore indexes
 key constraints
 JSON columns and functions
 window functions and analytical functions
 graph and edge tables
-encryption
+database encryption
+data masking
+row-level security
+Roles and permissions in database
+auditing
