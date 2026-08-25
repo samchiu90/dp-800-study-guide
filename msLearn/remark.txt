@@ -1,3 +1,5 @@
 rowstore indexes vs columnstore indexes
 key constraints
-JSON column
+JSON columns and functions
+window functions and analytical functions
+graph and edge tables
