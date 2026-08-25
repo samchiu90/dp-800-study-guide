@@ -3,3 +3,4 @@ key constraints
 JSON columns and functions
 window functions and analytical functions
 graph and edge tables
+encryption
