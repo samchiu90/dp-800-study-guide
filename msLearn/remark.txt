@@ -1,4 +1,5 @@
 recursive query
+CROSS APPLY
 rowstore indexes vs columnstore indexes
 key constraints
 JSON columns and functions
@@ -15,3 +16,4 @@ Transaction, pessimistic concurrency (locking), optimistic concurrency (row vers
 blocking and deadlocks
 testing strategy
 Data API builder for Azure Databases
+Change Tracking, Change Data Capture and Change Event Streaming
