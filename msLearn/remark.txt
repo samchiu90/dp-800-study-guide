@@ -13,3 +13,4 @@ vCore vs DTU
 Query Store
 Transaction, pessimistic concurrency (locking), optimistic concurrency (row versioning) and isolation level
 blocking and deadlocks
+testing strategy
