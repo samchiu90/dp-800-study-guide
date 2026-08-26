@@ -17,3 +17,4 @@ blocking and deadlocks
 testing strategy
 Data API builder for Azure Databases
 Change Tracking, Change Data Capture and Change Event Streaming
+Vector, distance metrics, search (Full-text search and Vector search) and Reciprocal Rank Fusion
