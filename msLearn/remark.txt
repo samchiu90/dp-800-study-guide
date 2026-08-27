@@ -1,7 +1,5 @@
-recursive query
-CROSS APPLY
-rowstore indexes vs columnstore indexes
-key constraints
+recursive query and CROSS APPLY
+rowstore indexes vs columnstore indexes, key constraints
 JSON columns and functions
 window functions and analytical functions
 graph and edge tables
