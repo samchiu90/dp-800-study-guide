@@ -1,0 +1,286 @@
+---
+layout: Conceptual
+monikers:
+- azure-sqldw-latest
+- azuresqldb-current
+- azuresqldb-mi-current
+- fabric-sqldb
+- aps-pdw-2016
+- aps-pdw-2016-au7
+- sql-server-linux-2017
+- sql-server-linux-ver15
+- sql-server-linux-ver16
+- sql-server-linux-ver17
+- sql-server-2017
+- sql-server-ver15
+- sql-server-ver16
+- sql-server-ver17
+defaultMoniker: sql-server-ver17
+versioningType: Ranged
+title: 'Columnstore indexes: Overview - SQL Server | Microsoft Learn'
+canonicalUrl: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+config_moniker_range: =azuresqldb-current || =azuresqldb-mi-current || =azure-sqldw-latest || >=aps-pdw-2016 || >=sql-server-2017 || >=sql-server-linux-2017 || =fabric || =fabric-sqldb
+uhfHeaderId: MSDocsHeader-DocsSQL
+toc_preview: true
+feedback_system: Standard
+feedback_product_url: https://feedback.azure.com/d365community/forum/04fe6ee0-3b25-ec11-b6e6-000d3a4f0da0
+feedback_help_link_url: https://learn.microsoft.com/answers/tags/191/sql-server
+feedback_help_link_type: get-help-at-qna
+recommendations: true
+breadcrumb_path: ../../breadcrumb/toc.json
+ms.update-cycle: 1825-days
+description: An overview on columnstore indexes. Columnstore indexes are the standard for storing and querying large data warehousing fact tables.
+author: markingmyname
+ms.author: maghan
+ms.reviewer: dfurman
+ms.date: 2025-04-14T00:00:00.0000000Z
+ms.service: sql
+ms.subservice: table-view-index
+ms.topic: concept-article
+ms.custom:
+- ignite-2025
+locale: en-us
+document_id: 571bf244-1472-286b-d1a8-7db2e54f40a2
+document_version_independent_id: bccbd120-47f3-78b7-0cd6-7d4198ea3604
+updated_at: 2026-08-24T17:40:00.0000000Z
+original_content_git_url: https://github.com/MicrosoftDocs/sql-docs-pr/blob/live/docs/relational-databases/indexes/columnstore-indexes-overview.md
+gitcommit: https://github.com/MicrosoftDocs/sql-docs-pr/blob/f4ac78917517e5229c25ba4f1b357ed41f2edd11/docs/relational-databases/indexes/columnstore-indexes-overview.md
+git_commit_id: f4ac78917517e5229c25ba4f1b357ed41f2edd11
+default_moniker: sql-server-ver17
+site_name: Docs
+depot_name: SQL.sql-content
+page_type: conceptual
+toc_rel: ../../toc.json
+pdf_url_template: https://learn.microsoft.com/pdfstore/en-us/SQL.sql-content/{branchName}{pdfName}
+word_count: 2679
+asset_id: relational-databases/indexes/columnstore-indexes-overview
+moniker_range_name: b55b134c56d21255490a7666a8a966c9
+monikers:
+- azure-sqldw-latest
+- azuresqldb-current
+- azuresqldb-mi-current
+- fabric-sqldb
+- aps-pdw-2016
+- aps-pdw-2016-au7
+- sql-server-linux-2017
+- sql-server-linux-ver15
+- sql-server-linux-ver16
+- sql-server-linux-ver17
+- sql-server-2017
+- sql-server-ver15
+- sql-server-ver16
+- sql-server-ver17
+item_type: Content
+source_path: docs/relational-databases/indexes/columnstore-indexes-overview.md
+cmProducts:
+- https://authoring-docs-microsoft.poolparty.biz/devrel/cbe4ca68-43ac-4375-aba5-5945a6394c20
+spProducts:
+- https://authoring-docs-microsoft.poolparty.biz/devrel/ced846cc-6a3c-4c8f-9dfb-3de0e90e2742
+platformId: 8b8f59b1-2658-fe98-9b64-a13aeea1818e
+---
+
+# Columnstore indexes: Overview - SQL Server | Microsoft Learn
+
+**Applies to:**![](../../includes/media/yes-icon.svg)[SQL Server](../../sql-server/sql-docs-navigation-guide#applies-to)![](../../includes/media/yes-icon.svg)[Azure SQL Database](../../sql-server/sql-docs-navigation-guide#applies-to)![](../../includes/media/yes-icon.svg)[Azure SQL Managed Instance](../../sql-server/sql-docs-navigation-guide#applies-to)![](../../includes/media/yes-icon.svg)[Azure Synapse Analytics](../../sql-server/sql-docs-navigation-guide#applies-to)![](../../includes/media/yes-icon.svg)[Analytics Platform System (PDW)](../../sql-server/sql-docs-navigation-guide#applies-to)![](../../includes/media/yes-icon.svg)[SQL database in Microsoft Fabric](../../sql-server/sql-docs-navigation-guide#applies-to)
+
+Columnstore indexes are the standard for storing and querying large data warehousing fact tables. This index uses column-based data storage and query processing to achieve gains up to 10 times the query performance in your data warehouse over traditional row-oriented storage. You can also achieve gains up to 10 times the data compression over the uncompressed data size. Beginning with SQL Server 2016 (13.x) SP1, columnstore indexes enable operational analytics: the ability to run performant real-time analytics on a transactional workload.
+
+Learn about a related scenario:
+
+- [Columnstore indexes in data warehousing](columnstore-indexes-data-warehouse)
+- [Get started with columnstore for real-time operational analytics](get-started-with-columnstore-for-real-time-operational-analytics)
+
+## What is a columnstore index?
+
+A columnstore index is a technology for storing, retrieving, and managing data by using a columnar data format, called a *columnstore*.
+
+### Key terms and concepts
+
+The following key terms and concepts are associated with columnstore indexes.
+
+#### Columnstore
+
+A columnstore is data that's logically organized as a table with rows and columns, and physically stored in a column-wise data format.
+
+#### Rowstore
+
+A rowstore is data that's logically organized as a table with rows and columns, and physically stored in a row-wise data format. This format is the traditional way to store relational table data. In SQL Server, rowstore refers to a table where the underlying data storage format is a heap, a clustered index, or a memory-optimized table.
+
+Note
+
+In discussions about columnstore indexes, the terms rowstore and columnstore are used to emphasize the format for the data storage.
+
+#### Rowgroup
+
+A rowgroup is a group of rows that are compressed into columnstore format at the same time. A rowgroup usually contains the maximum number of rows per rowgroup, which is 1,048,576 rows.
+
+For high performance and high compression rates, the columnstore index slices the table into rowgroups, and then compresses each rowgroup in a column-wise manner. The number of rows in the rowgroup must be large enough to improve compression rates, and small enough to benefit from in-memory operations.
+
+A rowgroup from where all data has been deleted transitions from COMPRESSED into TOMBSTONE state, and is later removed by a background process named the tuple-mover. For more information about rowgroup statuses, see [sys.dm_db_column_store_row_group_physical_stats (Transact-SQL)](../system-dynamic-management-views/sys-dm-db-column-store-row-group-physical-stats-transact-sql).
+
+Tip
+
+Having too many small rowgroups decreases the columnstore index quality. Until SQL Server 2017 (14.x), a reorganize operation is required to merge smaller COMPRESSED rowgroups, following an internal threshold policy that determines how to remove deleted rows and combine the compressed rowgroups. Starting with SQL Server 2019 (15.x), a background merge task also works to merge COMPRESSED rowgroups from where a large number of rows has been deleted. After merging smaller rowgroups, the index quality should be improved.
+
+Note
+
+ Starting with SQL Server 2019 (15.x), Azure SQL Database, Azure SQL Managed Instance, and dedicated SQL pools in Azure Synapse Analytics, the tuple-mover is helped by a background merge task that automatically compresses smaller OPEN delta rowgroups that have existed for some time as determined by an internal threshold, or merges COMPRESSED rowgroups from where a large number of rows has been deleted. This improves the columnstore index quality over time.
+
+#### Column segment
+
+A column segment is a column of data from within the rowgroup.
+
+- Each rowgroup contains one column segment for every column in the table.
+- Each column segment is compressed together and stored on physical media.
+- There's metadata with each segment to allow for fast elimination of segments without reading them.
+
+![Logical diagram of column segment. Each column has one column segment per rowgroup.](media/columnstore-indexes-overview/sql-server-pdw-columnstore-columnsegment.png)
+
+#### Clustered columnstore index
+
+A clustered columnstore index is the physical storage for the entire table.
+
+![Logical diagram of a clustered columnstore index. Includes compressed column segments plus rows in the index, but not in the columnstore.](media/columnstore-indexes-overview/sql-server-pdw-columnstore-physicalstorage.gif)
+
+To reduce fragmentation of the column segments and improve performance, the columnstore index might store some data temporarily into a clustered index called a *deltastore* and a B-tree list of IDs for deleted rows. The deltastore operations are handled behind the scenes. To return the correct query results, the clustered columnstore index combines query results from both the columnstore and the deltastore.
+
+Note
+
+Documentation uses the term B-tree generally in reference to indexes. In rowstore indexes, the Database Engine implements a B+ tree. This does not apply to columnstore indexes or indexes on memory-optimized tables. For more information, see the [SQL Server and Azure SQL index architecture and design guide](../sql-server-index-design-guide).
+
+#### Delta rowgroup
+
+A delta rowgroup is a clustered B-tree index that's used only with columnstore indexes. It improves columnstore compression and performance by storing rows until the number of rows reaches a threshold (1,048,576 rows) and are then moved into the columnstore.
+
+When a delta rowgroup reaches the maximum number of rows, it transitions from an OPEN to CLOSED state. A background process named the tuple-mover checks for closed row groups. If the process finds a closed rowgroup, it compresses the delta rowgroup and stores it into the columnstore as a COMPRESSED rowgroup.
+
+When a delta rowgroup has been compressed, the existing delta rowgroup transitions into TOMBSTONE state to be removed later by the tuple-mover when there's no reference to it.
+
+For more information about rowgroup statuses, see [sys.dm_db_column_store_row_group_physical_stats (Transact-SQL)](../system-dynamic-management-views/sys-dm-db-column-store-row-group-physical-stats-transact-sql).
+
+Note
+
+Starting with SQL Server 2019 (15.x), the tuple-mover is helped by a background merge task that automatically compresses smaller OPEN delta rowgroups that have existed for some time as determined by an internal threshold, or merges COMPRESSED rowgroups from where a large number of rows has been deleted. This improves the columnstore index quality over time.
+
+#### Deltastore
+
+A columnstore index can have more than one delta rowgroup. All of the delta rowgroups are collectively called the deltastore.
+
+During a large bulk load, most of the rows go directly to the columnstore without passing through the deltastore. Some rows at the end of the bulk load might be too few in number to meet the minimum size of a rowgroup, which is 102,400 rows. As a result, the final rows go to the deltastore instead of the columnstore. For small bulk loads with less than 102,400 rows, all of the rows go directly to the deltastore.
+
+#### Nonclustered columnstore index
+
+A nonclustered columnstore index and a clustered columnstore index function the same. The difference is that a nonclustered index is a secondary index that's created on a rowstore table, but a clustered columnstore index is the primary storage for the entire table.
+
+The nonclustered index contains a copy of part or all of the rows and columns in the underlying table. The index is defined as one or more columns of the table and has an optional condition that filters the rows.
+
+A nonclustered columnstore index enables real-time operational analytics where the OLTP workload uses the underlying clustered index while analytics run concurrently on the columnstore index. For more information, see [Get started with columnstore for real-time operational analytics](get-started-with-columnstore-for-real-time-operational-analytics).
+
+#### Batch mode execution
+
+Batch mode execution is a query processing method that's used to process multiple rows together. Batch mode execution is closely integrated with, and optimized around, the columnstore storage format. Batch mode execution is sometimes known as *vector-based* or *vectorized* execution. Queries on columnstore indexes use batch mode execution, which improves query performance typically by two to four times. For more information, see the [Query processing architecture guide](../query-processing-architecture-guide#execution-modes).
+
+## Why should I use a columnstore index?
+
+A columnstore index can provide a very high level of data compression, typically by 10 times, to significantly reduce your data warehouse storage cost. For analytics, a columnstore index offers an order of magnitude better performance than a B-tree index. Columnstore indexes are the preferred data storage format for data warehousing and analytics workloads. Starting with SQL Server 2016 (13.x), you can use columnstore indexes for real-time analytics on your operational workload.
+
+Reasons why columnstore indexes are so fast:
+
+- Columns store values from the same domain and commonly have similar values, which result in high compression rates. I/O bottlenecks in your system are minimized or eliminated, and memory footprint is reduced significantly.
+- High compression rates improve query performance by using a smaller in-memory footprint. In turn, query performance can improve because SQL Server can perform more query and data operations in memory.
+- Batch execution improves query performance, typically by two to four times, by processing multiple rows together.
+- Queries often select only a few columns from a table, which reduces total I/O from the physical media.
+
+## When should I use a columnstore index?
+
+Recommended use cases:
+
+- Use a clustered columnstore index to store fact tables and large dimension tables for data warehousing workloads. This method improves query performance and data compression by up to 10 times. For more information, see [Columnstore indexes for data warehousing](columnstore-indexes-data-warehouse).
+- Use a nonclustered columnstore index to perform analysis in real time on an OLTP workload. For more information, see [Get started with columnstore for real-time operational analytics](get-started-with-columnstore-for-real-time-operational-analytics).
+- For more usage scenarios for columnstore indexes, see [Choose the best columnstore index for your needs](columnstore-indexes-design-guidance#choose-the-best-columnstore-index-for-your-needs).
+
+### How do I choose between a rowstore index and a columnstore index?
+
+Rowstore indexes perform best on queries that seek into the data, when searching for a particular value, or for queries on a small range of values. Use rowstore indexes with transactional workloads because they tend to require mostly table seeks instead of table scans.
+
+Columnstore indexes give high performance gains for analytic queries that scan large amounts of data, especially on large tables. Use columnstore indexes on data warehousing and analytics workloads, especially on fact tables, because they tend to require full table scans rather than table seeks.
+
+Ordered clustered columnstore indexes improve performance for queries based on ordered column predicates. Ordered columnstore indexes can improve row-group elimination, which can deliver performance improvements by skipping row groups altogether. For more information, see [Performance tuning with ordered columnstore indexes](ordered-columnstore-indexes). For ordered columnstore index availability, see [Ordered column index availability](columnstore-indexes-overview#ordered-columnstore-index-availability).
+
+### Can I combine rowstore and columnstore on the same table?
+
+Yes. Beginning with SQL Server 2016 (13.x), you can create an updatable nonclustered columnstore index on a rowstore table. The columnstore index stores a copy of the selected columns, so you need extra space for this data, but the selected data is compressed on average 10 times. You can run analytics on the columnstore index and transactions on the rowstore index at the same time. The columnstore is updated when data changes in the rowstore table, so both indexes work against the same data.
+
+Beginning with SQL Server 2016 (13.x), you can have one or more nonclustered rowstore indexes on a columnstore index and perform efficient table seeks on the underlying columnstore. Other options become available too. For example, you can enforce a primary key constraint by using a UNIQUE constraint on the rowstore table. Because a nonunique value fails to insert into the rowstore table, SQL Server can't insert the value into the columnstore.
+
+## Ordered columnstore indexes
+
+By enabling efficient segment elimination, ordered columnstore indexes provide faster performance by skipping large amounts of ordered data that don't match the query predicate. Loading data into an ordered columnstore index can take longer than in a non-ordered index because of the data sorting operation, however with ordered columnstore indexes queries can run faster afterwards.
+
+- For more information on performance tuning data warehousing workloads in the SQL Database Engine with ordered columnstore indexes, see [Performance tuning with ordered columnstore indexes](ordered-columnstore-indexes).
+- For more information on when to use which type of columnstore index, see [Choose the best columnstore index for your needs](columnstore-indexes-design-guidance#choose-the-best-columnstore-index-for-your-needs).
+
+### Ordered columnstore index availability
+
+Ordered columnstore indexes are available in the following platforms:
+
+| Platform | Ordered*clustered*columnstore indexes | Ordered*nonclustered*columnstore indexes |
+| --- | --- | --- |
+| Azure SQL Database | Yes | Yes |
+| Azure SQL Managed Instance^AUTD^ | Yes | Yes |
+| Azure SQL Managed Instance^2025^ | Yes | Yes |
+| Azure SQL Managed Instance^2022^ | Yes | No |
+| SQL database in Microsoft Fabric | Yes^1^ | Yes |
+| SQL Server 2025 (17.x) | Yes | Yes |
+| SQL Server 2022 (16.x) | Yes | No |
+| Dedicated SQL pool in Azure Synapse Analytics | [Yes](/en-us/azure/synapse-analytics/sql-data-warehouse/performance-tuning-ordered-cci) | No |
+
+^AUTD^ Applies to Azure SQL Managed Instance configured with the [Always-up-to-date update policy](/en-us/azure/azure-sql/managed-instance/update-policy#always-up-to-date-update-policy).^2025^ Applies to Azure SQL Managed Instance configured with the [SQL Server 2025 update policy](/en-us/azure/azure-sql/managed-instance/update-policy#sql-server-2025-update-policy).^2022^ Applies to Azure SQL Managed Instance configured with the [SQL Server 2022 update policy](/en-us/azure/azure-sql/managed-instance/update-policy#sql-server-2022-update-policy).^1^In Fabric SQL database, tables with clustered columnstore indexes are not [mirrored to Fabric OneLake](/en-us/fabric/database/sql/mirroring-overview).
+
+## Metadata
+
+All of the columns in a columnstore index are stored in the metadata as included columns. The columnstore index doesn't have key columns.
+
+[sys.indexes (Transact-SQL)](../system-catalog-views/sys-indexes-transact-sql)
+
+[sys.index_columns (Transact-SQL)](../system-catalog-views/sys-index-columns-transact-sql)
+
+[sys.partitions (Transact-SQL)](../system-catalog-views/sys-partitions-transact-sql)
+
+[sys.internal_partitions (Transact-SQL)](../system-catalog-views/sys-internal-partitions-transact-sql)
+
+[sys.column_store_segments (Transact-SQL)](../system-catalog-views/sys-column-store-segments-transact-sql)
+
+[sys.column_store_dictionaries (Transact-SQL)](../system-catalog-views/sys-column-store-dictionaries-transact-sql)
+
+[sys.column_store_row_groups (Transact-SQL)](../system-catalog-views/sys-column-store-row-groups-transact-sql)
+
+[sys.dm_db_column_store_row_group_operational_stats (Transact-SQL)](../system-dynamic-management-views/sys-dm-db-column-store-row-group-operational-stats-transact-sql)
+
+[sys.dm_db_column_store_row_group_physical_stats (Transact-SQL)](../system-dynamic-management-views/sys-dm-db-column-store-row-group-physical-stats-transact-sql)
+
+[sys.dm_column_store_object_pool (Transact-SQL)](../system-dynamic-management-views/sys-dm-column-store-object-pool-transact-sql)
+
+[sys.dm_db_column_store_row_group_operational_stats (Transact-SQL)](../system-dynamic-management-views/sys-dm-db-column-store-row-group-operational-stats-transact-sql)
+
+[sys.dm_db_index_operational_stats (Transact-SQL)](../system-dynamic-management-views/sys-dm-db-index-operational-stats-transact-sql)
+
+[sys.dm_db_index_physical_stats (Transact-SQL)](../system-dynamic-management-views/sys-dm-db-index-physical-stats-transact-sql)
+
+## Related tasks
+
+| Task | Reference articles | Notes |
+| --- | --- | --- |
+| Create a table as a columnstore. | [CREATE TABLE (Transact-SQL)](../../t-sql/statements/create-table-transact-sql) | By default, when you create a table, it uses rowstore as the underlying data format. Beginning with SQL Server 2016 (13.x), you can create the table with a clustered columnstore index by specifying the `INDEX ... CLUSTERED COLUMNSTORE` option. You don't have to first create a rowstore table and then convert it to columnstore. |
+| Convert a rowstore table to a columnstore. | [CREATE COLUMNSTORE INDEX (Transact-SQL)](../../t-sql/statements/create-columnstore-index-transact-sql) | Convert an existing heap or B-tree to a columnstore. Examples show how to handle existing indexes and also the name of the index when performing this conversion. |
+| Create a nonclustered columnstore index on a rowstore table. | [CREATE COLUMNSTORE INDEX (Transact-SQL)](../../t-sql/statements/create-columnstore-index-transact-sql) | A rowstore table can have one nonclustered columnstore index. Beginning with SQL Server 2016 (13.x), the nonclustered columnstore index can have a filtered condition. Examples show the basic syntax. |
+| Convert a columnstore table to a rowstore. | [CREATE CLUSTERED INDEX (Transact-SQL)](../../t-sql/statements/create-columnstore-index-transact-sql#d-convert-a-columnstore-table-to-a-rowstore-table-with-a-clustered-index) or [Convert a columnstore table back to a rowstore heap](../../t-sql/statements/create-columnstore-index-transact-sql#e-convert-a-columnstore-table-back-to-a-rowstore-heap) | Usually this conversion isn't necessary, but there can be times when you need to convert. Examples show how to convert a columnstore to a heap or clustered index. |
+| Create columnstore indexes for data warehousing. | [Columnstore indexes for data warehousing](columnstore-indexes-data-warehouse) | Describes how to use columnstore indexes for fast data warehousing queries. |
+| Create indexes for operational analytics. | [Get started with columnstore for real-time operational analytics](get-started-with-columnstore-for-real-time-operational-analytics) | Describes how to create complementary columnstore and B-tree indexes, so that OLTP queries use B-tree indexes and analytics queries use columnstore indexes. |
+| Use a B-tree index to enforce a primary key constraint on a columnstore index. | [Columnstore indexes for data warehousing](columnstore-indexes-data-warehouse) | Shows how to combine B-tree and columnstore indexes to enforce the primary key constraint on a columnstore table. |
+| Create a memory-optimized table with a columnstore index. | [CREATE TABLE (Transact-SQL)](../../t-sql/statements/create-table-transact-sql) | Beginning with SQL Server 2016 (13.x), you can create a memory-optimized table with a columnstore index. The columnstore index can also be added after the table is created by using the `ALTER TABLE ADD INDEX` syntax. |
+| Load data into a columnstore index. | [Columnstore indexes data loading](columnstore-indexes-data-loading-guidance) |  |
+| Drop a columnstore index. | [DROP INDEX (Transact-SQL)](../../t-sql/statements/drop-index-transact-sql) | Dropping a columnstore index uses the standard `DROP INDEX` syntax that B-tree indexes use. Dropping a clustered columnstore index converts the columnstore table to a heap. |
+| Delete a row from a columnstore index. | [DELETE (Transact-SQL)](../../t-sql/statements/delete-transact-sql) | Use [DELETE (Transact-SQL)](../../t-sql/statements/delete-transact-sql) to delete a row.**columnstore row**: SQL Server marks the row as logically deleted, but doesn't reclaim the physical storage for the row until the index is rebuilt.**deltastore row**: SQL Server logically and physically deletes the row. |
+| Update a row in the columnstore index. | [UPDATE (Transact-SQL)](../../t-sql/queries/update-transact-sql) | Use [UPDATE (Transact-SQL)](../../t-sql/queries/update-transact-sql) to update a row.**columnstore row**: SQL Server marks the row as logically deleted and then inserts the updated row into the deltastore.**deltastore row**: SQL Server updates the row in the deltastore. |
+| Maintain a columnstore index. | [ALTER INDEX ... REBUILD](../../t-sql/statements/alter-index-transact-sql#rebuild--with--rebuild_index_option---n---)[REORGANIZE a columnstore index](../../t-sql/statements/alter-index-transact-sql#reorganize-a-columnstore-index)[Index maintenance methods: reorganize and rebuild](reorganize-and-rebuild-indexes#index-maintenance-methods-reorganize-and-rebuild) | In most cases, `ALTER INDEX ... REORGANIZE` provides results similar to `ALTER INDEX ... REBUILD` but with lower resource consumption. `ALTER INDEX ... REORGANIZE` always runs online. Both options defragment a columnstore index and force rows in the deltastore to go into the columnstore.Starting with SQL Server 2019 (15.x), in Azure SQL Database, and in Azure SQL Managed Instance, columnstore index quality is maintained automatically, removing the need for periodic index maintenance in most cases. |
